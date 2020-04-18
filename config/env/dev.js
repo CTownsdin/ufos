@@ -1,3 +1,4 @@
 module.exports = {
-    name: 'Development'
-}
+  name: "Development",
+  dynamo_endpoint: "http://localhost:8000",
+};

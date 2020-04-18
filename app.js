@@ -15,7 +15,7 @@ if (cluster.isMaster) {
   // Listen for terminating workers
   cluster.on("exit", (worker) => {
     // Replace the terminated workers
-    console.log(`Worker ${worker.id} died :(`);
+    console.log(`Worker ${worker.id} died.`);
     cluster.fork();
   });
 
@@ -24,6 +24,7 @@ if (cluster.isMaster) {
   const AWS = require("aws-sdk");
   const express = require("express");
   const bodyParser = require("body-parser");
+  const v1Router = require("./routes/v1-router");
 
   AWS.config.region = process.env.REGION;
 
@@ -40,14 +41,8 @@ if (cluster.isMaster) {
   app.set("views", `${__dirname}/views`);
   app.use(bodyParser.urlencoded({ extended: false }));
 
-  app.get("/", (req, res) => {
-    // EJS render index.ejs
-    res.render("index", {
-      static_path: "static",
-      theme: process.env.THEME || "flatly",
-      flask_debug: process.env.FLASK_DEBUG || "false",
-    });
-  });
+  // Routes
+  app.use("/v1", v1Router);
 
   app.post("/signup", (req, res) => {
     const item = {
@@ -80,8 +75,8 @@ if (cluster.isMaster) {
               Subject: "New user sign up!!!",
               TopicArn: snsTopic,
             },
-            (err, data) => {
-              if (err) {
+            (snsErr, snsData) => {
+              if (snsErr) {
                 res.status(500).end();
                 console.log(`SNS Error: ${err}`);
               } else {
@@ -92,6 +87,15 @@ if (cluster.isMaster) {
         }
       }
     );
+  });
+
+  app.get("/", (req, res) => {
+    // EJS render index.ejs
+    res.render("index", {
+      static_path: "static",
+      theme: process.env.THEME || "flatly",
+      flask_debug: process.env.FLASK_DEBUG || "false",
+    });
   });
 
   app.listen(config.port, () => {

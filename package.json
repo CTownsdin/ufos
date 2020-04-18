@@ -3,21 +3,23 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "aws-sdk": "latest",
+    "aws-sdk": "^2.658.0",
     "body-parser": "^1.19.0",
     "ejs": "latest",
-    "eslint-plugin-prettier": "^3.1.3",
     "express": "^4.17.1",
-    "lodash": "^4.17.15",
-    "prettier": "^2.0.4"
+    "lodash": "^4.17.15"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "startmon": "nodemon app.js"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-prettier": "^6.10.1",
-    "eslint-plugin-import": "^2.20.2"
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prettier": "^3.1.3",
+    "nodemon": "^2.0.3",
+    "prettier": "^2.0.4"
   }
 }
