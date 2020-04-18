@@ -1,104 +1,81 @@
-/* eslint-disable global-require */
-const cluster = require("cluster");
+const AWS = require("aws-sdk");
+const express = require("express");
+const bodyParser = require("body-parser");
 const config = require("./config/config");
+const v1Router = require("./routes/v1-router");
 
-// Code to run if we're in the master process
-if (cluster.isMaster) {
-  // Count the machine's CPUs
-  const cpuCount = require("os").cpus().length;
+AWS.config.region = process.env.REGION;
 
-  // Create a worker for each CPU
-  for (let i = 0; i < cpuCount; i += 1) {
-    cluster.fork();
-  }
+const sns = new AWS.SNS();
+const ddb = new AWS.DynamoDB();
 
-  // Listen for terminating workers
-  cluster.on("exit", (worker) => {
-    // Replace the terminated workers
-    console.log(`Worker ${worker.id} died.`);
-    cluster.fork();
-  });
+const ddbTable = process.env.STARTUP_SIGNUP_TABLE;
+const snsTopic = process.env.NEW_SIGNUP_TOPIC;
+const app = express();
 
-  // Code to run if we're in a worker process
-} else {
-  const AWS = require("aws-sdk");
-  const express = require("express");
-  const bodyParser = require("body-parser");
-  const v1Router = require("./routes/v1-router");
+app.set("port", config.port);
 
-  AWS.config.region = process.env.REGION;
+app.set("view engine", "ejs");
+app.set("views", `${__dirname}/views`);
+app.use(bodyParser.urlencoded({ extended: false }));
 
-  const sns = new AWS.SNS();
-  const ddb = new AWS.DynamoDB();
+// Routes
+app.use("/v1", v1Router);
 
-  const ddbTable = process.env.STARTUP_SIGNUP_TABLE;
-  const snsTopic = process.env.NEW_SIGNUP_TOPIC;
-  const app = express();
+app.post("/signup", (req, res) => {
+  const item = {
+    email: { S: req.body.email },
+    name: { S: req.body.name },
+    preview: { S: req.body.previewAccess },
+    theme: { S: req.body.theme },
+  };
 
-  app.set("port", config.port);
+  ddb.putItem(
+    {
+      TableName: ddbTable,
+      Item: item,
+      Expected: { email: { Exists: false } },
+    },
+    (err, data) => {
+      if (err) {
+        let returnStatus = 500;
 
-  app.set("view engine", "ejs");
-  app.set("views", `${__dirname}/views`);
-  app.use(bodyParser.urlencoded({ extended: false }));
-
-  // Routes
-  app.use("/v1", v1Router);
-
-  app.post("/signup", (req, res) => {
-    const item = {
-      email: { S: req.body.email },
-      name: { S: req.body.name },
-      preview: { S: req.body.previewAccess },
-      theme: { S: req.body.theme },
-    };
-
-    ddb.putItem(
-      {
-        TableName: ddbTable,
-        Item: item,
-        Expected: { email: { Exists: false } },
-      },
-      (err, data) => {
-        if (err) {
-          let returnStatus = 500;
-
-          if (err.code === "ConditionalCheckFailedException") {
-            returnStatus = 409;
-          }
-
-          res.status(returnStatus).end();
-          console.log(`DDB Error: ${err}`);
-        } else {
-          sns.publish(
-            {
-              Message: `Name: ${req.body.name}\r\nEmail: ${req.body.email}\r\nPreviewAccess: ${req.body.previewAccess}\r\nTheme: ${req.body.theme}`,
-              Subject: "New user sign up!!!",
-              TopicArn: snsTopic,
-            },
-            (snsErr, snsData) => {
-              if (snsErr) {
-                res.status(500).end();
-                console.log(`SNS Error: ${err}`);
-              } else {
-                res.status(201).end();
-              }
-            }
-          );
+        if (err.code === "ConditionalCheckFailedException") {
+          returnStatus = 409;
         }
+
+        res.status(returnStatus).end();
+        console.log(`DDB Error: ${err}`);
+      } else {
+        sns.publish(
+          {
+            Message: `Name: ${req.body.name}\r\nEmail: ${req.body.email}\r\nPreviewAccess: ${req.body.previewAccess}\r\nTheme: ${req.body.theme}`,
+            Subject: "New user sign up!!!",
+            TopicArn: snsTopic,
+          },
+          (snsErr, snsData) => {
+            if (snsErr) {
+              res.status(500).end();
+              console.log(`SNS Error: ${err}`);
+            } else {
+              res.status(201).end();
+            }
+          }
+        );
       }
-    );
-  });
+    }
+  );
+});
 
-  app.get("/", (req, res) => {
-    // EJS render index.ejs
-    res.render("index", {
-      static_path: "static",
-      theme: process.env.THEME || "flatly",
-      flask_debug: process.env.FLASK_DEBUG || "false",
-    });
+app.get("/", (req, res) => {
+  // EJS render index.ejs
+  res.render("index", {
+    static_path: "static",
+    theme: process.env.THEME || "flatly",
+    flask_debug: process.env.FLASK_DEBUG || "false",
   });
+});
 
-  app.listen(config.port, () => {
-    console.log(`Server running at http://127.0.0.1:${config.port}/`);
-  });
-}
+app.listen(config.port, () => {
+  console.log(`Server running at http://127.0.0.1:${config.port}/`);
+});
