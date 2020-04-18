@@ -2,18 +2,27 @@ const express = require("express");
 
 const router = express.Router();
 
-// All ufos, paginated
 router.get("/ufos", (req, res) => {
-  res.send("Imagine getting all ufos, in a paginated manner.");
+  // UFOs by City
+  if (res.query && res.query.city) {
+    res.send(`Imagine sending all ufos by city: ${res.query.city}`);
+  }
+
+  // UFO by Date_Time, which is the day of the event
+  if (res.query && res.query.date) {
+    res.send(`Imagine sending all ufos by date: ${res.query.date}`);
+  }
+
+  // All UFOs
+  res.send("Imagine sending all ufos, in a paginated manner.");
 });
 
-// ufos by city query parameter
-// /v1/ufos?city=seattle
-// router.get("/ufos", (req, res) => {
-//   res.send("Imagine getting all ufos, in a paginated manner.");
-// });
+// UFO by ID
+router.get("/ufos/:ufoID", (req, res) => {
+  res.send(`Imagine sending the ufo sighting with ID: ${req.params.ufoID}`);
+});
 
-// /v1 home page route
+// HomePage /v1
 router.get("/", (req, res) => {
   // EJS render index.ejs
   res.render("index", {
