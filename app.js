@@ -41,6 +41,7 @@ if (cluster.isMaster) {
     app.use(bodyParser.urlencoded({extended:false}));
 
     app.get('/', function(req, res) {
+        // EJS render index.ejs
         res.render('index', {
             static_path: 'static',
             theme: process.env.THEME || 'flatly',
