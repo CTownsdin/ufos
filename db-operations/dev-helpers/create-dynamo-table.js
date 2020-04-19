@@ -1,12 +1,13 @@
 const AWS = require("aws-sdk");
-const config = require("../config/config");
+const config = require("../../config/config");
 
 AWS.config.update({
   region: "us-west-2",
   endpoint: config.dynamo_endpoint,
+  // endpoint: "https://dynamodb.us-west-2.amazonaws.com",
 });
 
-// Reference: One UFO.
+// For Reference: One UFO.
 // {
 //   "Date / Time": "1/26/16 01:26",
 //   Country: "USA",
@@ -18,6 +19,7 @@ AWS.config.update({
 //   lat: 39.7348381,
 //   "lng\r": -104.965327,
 // }
+
 const dynamodb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
 const params = {

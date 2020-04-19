@@ -1,7 +1,7 @@
 const AWS = require("aws-sdk");
-const config = require("../config/config");
-const bigUfos = require("../data/ufos");
-const fixTime = require("../helpers/fixTime");
+const config = require("../../config/config");
+const bigUfos = require("../../data/ufos");
+const fixTime = require("../../helpers/fixTime");
 
 AWS.config.update({
   region: "us-west-2",
