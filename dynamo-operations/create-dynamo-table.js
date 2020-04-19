@@ -23,11 +23,11 @@ const dynamodb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 const params = {
   TableName: "ufos",
   KeySchema: [
-    { AttributeName: "Date / Time", KeyType: "HASH" }, // Partition Key
+    { AttributeName: "MomentTime", KeyType: "HASH" }, // Partition Key
     { AttributeName: "City", KeyType: "RANGE" }, // Sort Key
   ],
   AttributeDefinitions: [
-    { AttributeName: "Date / Time", AttributeType: "S" },
+    { AttributeName: "MomentTime", AttributeType: "S" },
     { AttributeName: "City", AttributeType: "S" },
   ],
   ProvisionedThroughput: {

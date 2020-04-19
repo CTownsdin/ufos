@@ -1,3 +1,5 @@
 module.exports = {
-    name: 'Production'
+  name: "Production",
+
+  dynamo_endpoint: "https://dynamodb.us-west-2.amazonaws.com",
 };

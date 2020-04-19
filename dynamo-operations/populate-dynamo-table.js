@@ -1,23 +1,20 @@
 const AWS = require("aws-sdk");
-const moment = require("moment");
 const config = require("../config/config");
 const bigUfos = require("../data/ufos");
+const fixTime = require("../helpers/fixTime");
 
 AWS.config.update({
   region: "us-west-2",
-  endpoint: "https://dynamodb.us-west-2.amazonaws.com",
+  endpoint: config.dynamo_endpoint,
 });
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 console.log("Importing test UFOs into DB");
 
-bigUfos.slice(0, 3).forEach((ufo) => {
+// bigUfos.slice(0, 3).forEach((ufo) => {
+bigUfos.forEach((ufo) => {
   const newUfo = ufo;
-
-  newUfo["Date / Time"] = moment(
-    ufo.Occurrence_Date_Time,
-    "MM-DD-YY HH:mm"
-  ).format();
+  newUfo.MomentTime = fixTime(ufo["Date / Time"]);
 
   const params = {
     TableName: "ufos",
@@ -28,7 +25,7 @@ bigUfos.slice(0, 3).forEach((ufo) => {
     if (err) {
       console.error(`Unable to add ufo ${JSON.stringify(err, null, 2)}`);
     } else {
-      console.log(`PutItem success: ${ufo["Date / Time"]} ${ufo.City}`);
+      console.log(`Put Success: ${ufo.MomentTime} ${ufo.City}`);
     }
   });
 });
