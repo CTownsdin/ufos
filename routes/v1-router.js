@@ -1,22 +1,29 @@
 const express = require("express");
+const db = require("../db-operations/db-operations");
 
 const router = express.Router();
 
 router.get("/ufos", (req, res) => {
   // UFOs by City
-  if (res.query && res.query.city) {
-    // should paginate all these API calls.
-    console.log(`fetching ufos by city: ${res.query.city}`);
-    res.send(`Imagine sending all ufos by city: ${res.query.city}`);
-  }
-
-  // UFO by Date_Time, which is the day of the event
-  if (res.query && res.query.date) {
-    res.send(`Imagine sending all ufos by date: ${res.query.date}`);
-  }
+  // if (req.query && req.query.city) {}
 
   // All UFOs
-  res.send("Imagine sending all ufos, in a paginated manner.");
+  db.getAllUfos().then((result) => {
+    const { statusCode, error } = result;
+    if (statusCode !== 200) {
+      console.error(
+        `Error ${statusCode}, Error fetching all UFOs, ${error.message}.`
+      );
+
+      return res
+        .status(statusCode)
+        .send(`Error ${statusCode}, fetching all UFOs.`);
+    }
+
+    const ufos = result.body.Items;
+
+    return res.json(ufos);
+  });
 });
 
 // UFO by ID
