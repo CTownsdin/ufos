@@ -10,26 +10,12 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 console.log("Getting test UFOs from DB");
 
-// const params = {
-//   TableName: "ufos",
-//   Key: {
-//     ID: "154/S154900.html",
-//   },
-// };
-
-// docClient.get(params, (err, data) => {
-//   if (err) console.log(err, err.stack);
-//   else console.log(`success: ${JSON.stringify(data, null, 2)}`);
-// });
-
-// GET where the city is Seattle.
-// GET Needs BOTH
 const cityParams = {
   TableName: "ufos",
   Key: {
     Occurrence_Date_Time: "2020-04-09T16:00:00-07:00", // Partition
     Location_City: "North Stonington", // Sort
-  }, // get needs BOTH keys.
+  },
 };
 
 docClient.get(cityParams, (err, data) => {
@@ -50,13 +36,13 @@ const params = {
   },
 };
 
-docClient.query(params, function (err, data) {
+docClient.query(params, (err, data) => {
   if (err) {
-    console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
+    console.error("Query error:", JSON.stringify(err, null, 2));
   } else {
-    console.log("Query succeeded.");
-    data.Items.forEach(function (item) {
-      console.log(" -", item.year + ": " + item.title);
+    console.log("Query success");
+    data.Items.forEach((item) => {
+      console.log(`${item["Date / Time"]} ${item.City}`);
     });
   }
 });
