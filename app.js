@@ -1,7 +1,7 @@
 const AWS = require("aws-sdk");
 const express = require("express");
 const bodyParser = require("body-parser");
-const config = require("./config/config");
+const config = require("./config");
 const v1Router = require("./routes/v1-router");
 
 AWS.config.region = process.env.REGION;

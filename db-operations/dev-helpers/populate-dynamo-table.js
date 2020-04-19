@@ -1,5 +1,5 @@
 const AWS = require("aws-sdk");
-const config = require("../../config/config");
+const config = require("../../config");
 const bigUfos = require("../../data/ufos");
 const fixTime = require("../../helpers/fixTime");
 

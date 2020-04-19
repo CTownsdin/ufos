@@ -1,10 +1,9 @@
 const AWS = require("aws-sdk");
-const config = require("../../config/config");
+const config = require("../../config");
 
 AWS.config.update({
   region: "us-west-2",
   endpoint: config.dynamo_endpoint,
-  // endpoint: "https://dynamodb.us-west-2.amazonaws.com",
 });
 
 // For Reference: One UFO.
