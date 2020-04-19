@@ -5,6 +5,8 @@ const router = express.Router();
 router.get("/ufos", (req, res) => {
   // UFOs by City
   if (res.query && res.query.city) {
+    // should paginate all these API calls.
+    console.log(`fetching ufos by city: ${res.query.city}`);
     res.send(`Imagine sending all ufos by city: ${res.query.city}`);
   }
 
