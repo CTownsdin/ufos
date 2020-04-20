@@ -2,19 +2,13 @@ const AWS = require("aws-sdk");
 const express = require("express");
 const bodyParser = require("body-parser");
 const config = require("./config");
+
 const v1Router = require("./routes/v1-router");
 
 AWS.config.region = process.env.REGION;
 
-const sns = new AWS.SNS();
-const ddb = new AWS.DynamoDB();
-
-const ddbTable = process.env.STARTUP_SIGNUP_TABLE;
-const snsTopic = process.env.NEW_SIGNUP_TOPIC;
 const app = express();
-
 app.set("port", config.port);
-
 app.set("view engine", "ejs");
 app.set("views", `${__dirname}/views`);
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,6 +16,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Routes
 app.use("/v1", v1Router);
 
+// TODO: Try this setup to access dynamoDB in ElasticBeanstalk.
+// Or switch to cloud formation template.
+const ddb = new AWS.DynamoDB();
+const ddbTable = process.env.STARTUP_SIGNUP_TABLE;
+// TODO: Try this.
 app.post("/signup", (req, res) => {
   const item = {
     email: { S: req.body.email },
@@ -47,21 +46,7 @@ app.post("/signup", (req, res) => {
         res.status(returnStatus).end();
         console.log(`DDB Error: ${err}`);
       } else {
-        sns.publish(
-          {
-            Message: `Name: ${req.body.name}\r\nEmail: ${req.body.email}\r\nPreviewAccess: ${req.body.previewAccess}\r\nTheme: ${req.body.theme}`,
-            Subject: "New user sign up!!!",
-            TopicArn: snsTopic,
-          },
-          (snsErr, snsData) => {
-            if (snsErr) {
-              res.status(500).end();
-              console.log(`SNS Error: ${err}`);
-            } else {
-              res.status(201).end();
-            }
-          }
-        );
+        // TODO: Do something.
       }
     }
   );
