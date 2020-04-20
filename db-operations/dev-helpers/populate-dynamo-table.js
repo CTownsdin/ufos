@@ -6,13 +6,12 @@ const fixTime = require("../../helpers/fixTime");
 AWS.config.update({
   region: "us-west-2",
   endpoint: config.dynamo_endpoint,
-  // endpoint: "https://dynamodb.us-west-2.amazonaws.com",
 });
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 console.log("Importing test UFOs into DB");
 
-bigUfos.forEach((ufo) => {
+bigUfos.slice(0, 10).forEach((ufo) => {
   const newUfo = ufo;
   newUfo.MomentTime = fixTime(ufo["Date / Time"]);
 
