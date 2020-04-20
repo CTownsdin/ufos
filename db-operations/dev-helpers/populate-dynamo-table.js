@@ -11,7 +11,7 @@ AWS.config.update({
 const docClient = new AWS.DynamoDB.DocumentClient();
 console.log("Importing test UFOs into DB");
 
-bigUfos.slice(0, 10).forEach((ufo) => {
+bigUfos.slice(0, 1000).forEach((ufo) => {
   const newUfo = ufo;
   newUfo.MomentTime = fixTime(ufo["Date / Time"]);
 
@@ -34,4 +34,4 @@ bigUfos.slice(0, 10).forEach((ufo) => {
   });
 });
 
-// TODO: NOTE: We're loosing 4 of 500 on upload, this deserves investigation later.
+// TODO: NOTE: We're loosing 8 of 1000 on upload, this deserves investigation later.

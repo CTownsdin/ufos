@@ -35,6 +35,24 @@ const params = {
     ReadCapacityUnits: 5,
     WriteCapacityUnits: 5,
   },
+  GlobalSecondaryIndexes: [
+    {
+      IndexName: "City-index",
+      KeySchema: [
+        {
+          AttributeName: "City",
+          KeyType: "HASH",
+        },
+      ],
+      Projection: {
+        ProjectionType: "ALL",
+      },
+      ProvisionedThroughput: {
+        ReadCapacityUnits: 5,
+        WriteCapacityUnits: 5,
+      },
+    },
+  ],
 };
 
 dynamodb.createTable(params, (err, data) => {

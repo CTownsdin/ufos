@@ -30,15 +30,53 @@ router.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
  * @swagger
  * /v1/ufos:
  *  get:
- *    description: Use to request all UFO sightings. Warning, slow, 5000+ items.
+ *    description:
+ *      Request all UFO sightings. Use ?city=SomeCity to get city specific sightings. Use ?date=2016-12-19T20:02:00-08:00.
+ *
  *    responses:
  *      '200':
  *        description: A successful response
  */
 router.get("/ufos", (req, res) => {
   // UFOs by City
-  // if (req.query && req.query.city) {}
-  // TODO:
+  if (req.query && req.query.city) {
+    db.getUfosByCity(req.query.city).then((result) => {
+      const { statusCode, error } = result;
+      if (statusCode !== 200) {
+        console.error(
+          `Error ${statusCode}, Error fetching UFOs by city ${error.message}.`
+        );
+
+        return res
+          .status(statusCode)
+          .send(`Error ${statusCode}, fetching UFOs by city.`);
+      }
+
+      const ufos = result.body.Items;
+
+      return res.json(ufos);
+    });
+  }
+
+  // UFOs by Date
+  if (req.query && req.query.date) {
+    db.getUfosByTimestamp(req.query.date).then((result) => {
+      const { statusCode, error } = result;
+      if (statusCode !== 200) {
+        console.error(
+          `Error ${statusCode}, Error fetching UFOs by city ${error.message}.`
+        );
+
+        return res
+          .status(statusCode)
+          .send(`Error ${statusCode}, fetching UFOs by city.`);
+      }
+
+      const ufos = result.body.Items;
+
+      return res.json(ufos);
+    });
+  }
 
   // TODO: Paginate
   db.getAllUfos().then((result) => {
